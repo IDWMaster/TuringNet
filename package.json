@@ -1,0 +1,25 @@
+{
+  "name": "turingnet",
+  "version": "1.0.0",
+  "description": "Turing-complete neural network",
+  "main": "main.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/IDWMaster/TuringNet.git"
+  },
+  "keywords": [
+    "AI",
+    "neural-net",
+    "ann",
+    "brain"
+  ],
+  "author": "Brian Bosak <brielcccc@gmail.com> (https://github.com/IDWMaster)",
+  "license": "GPL-3.0",
+  "bugs": {
+    "url": "https://github.com/IDWMaster/TuringNet/issues"
+  },
+  "homepage": "https://github.com/IDWMaster/TuringNet#readme"
+}
