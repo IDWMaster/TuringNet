@@ -1,4 +1,5 @@
 var brain = require('brain');
+var fs = require('fs');
 var basenet = new brain.NeuralNetwork({hiddenLayers:[80]}); //Base neural-network, for executing Turing instructions
 //OPCODE list: .0 -- AND, .4 -- OR, .9 -- NOT
 //This set of operations should be turing-complete. In other words; we should be able to express
@@ -41,3 +42,8 @@ console.log(basenet.run([.9,0,0]) > .5);
 console.log(basenet.run([.9,0,1]) > .5);
 console.log(basenet.run([.9,1,1]) > .5);
 console.log(basenet.run([.9,1,0]) > .5);
+
+//Output the primitive neural-network to the training file
+var output = fs.createWriteStream('binops.json');
+output.write(JSON.stringify(basenet.toJSON()));
+output.end();
