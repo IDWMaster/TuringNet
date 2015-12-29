@@ -33,9 +33,9 @@ var mkemptynet = function(template) {
             template.output[i]*=(1+level);
             }
         }
-        net.trainPattern(template.input,template.output,.5);
+        net.trainPattern(template.input,template.output,.2);
     };
-    /**
+    /*
      * Tells the neural network it is heading down the wrong path.
      * @param {Number} level A number between 0 and 1, indicating level of enforcement.
      * @returns {undefined}
