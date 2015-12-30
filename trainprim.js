@@ -1,6 +1,6 @@
 var brain = require('brainjs');
 var fs = require('fs');
-var basenet = new brain.NeuralNetwork({hiddenLayers:[80]}); //Base neural-network, for executing Turing instructions
+var basenet;
 //OPCODE list: .0 -- AND, .4 -- OR, .9 -- NOT
 //This set of operations should be turing-complete. In other words; we should be able to express
 //all operations of a hypothetical turing machine using these instructions
@@ -62,6 +62,8 @@ var nets = {};
 nets.logic = basenet.toJSON();
 
 
+
+
 //Create thresholding neural-network
 table = new Array();
 var accuracy = 500;
@@ -69,6 +71,18 @@ for(var i = 0;i<accuracy;i++) {
     table.push({input:[i/accuracy],output:[((i/accuracy)>.5)*1]});
 }
 nets.threshold = mknet(table).toJSON();
+//TODO: XOR from existing logic gates
+var xorinputs = [[0,0],[0,1],[1,0],[1,1]];
+nets.xor = mknetFromFunctionSync({input:[0,0],output:[0,0,0,0,0,0]},xorinputs,function(input,outputs){
+    var currentState = input;
+    for(var i = 0;i<outputs.length;i++) {
+        var output = outputs[i];
+        basenet.run([output,currentState[0],currentState[1]]);
+    }
+});
+
+
+
 
 
 //Output the primitive neural-network to the training file
