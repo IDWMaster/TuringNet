@@ -3,7 +3,8 @@
   "version": "1.0.0",
   "description": "Turing-complete neural network",
   "main": "main.js",
-  "scripts": {"start": "node trainprim.js",
+  "scripts": {
+    "start": "node trainprim.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
@@ -23,6 +24,7 @@
   },
   "homepage": "https://github.com/IDWMaster/TuringNet#readme",
   "dependencies": {
-    "brain": "^0.7.0"
+    "brain": "^0.7.0",
+    "brainjs": "^0.7.4"
   }
 }
