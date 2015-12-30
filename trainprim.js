@@ -25,7 +25,7 @@ var mknetFromFunctionSync = function(trainingSample,inputs,func) {
                 return func(input,output);
             },.2);
         }
-        console.log('Current error: '+err);
+        //console.log('Current error: '+err);
         //err/=inputs.length;
     }
     return net;
