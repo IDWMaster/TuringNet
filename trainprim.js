@@ -25,8 +25,10 @@ var mknetFromFunctionSync = function (trainingSample, inputs, func) {
                 return func(input, output);
             }, .2));
         }
-        console.log('Current error: '+err);
+        
         //err/=inputs.length;
+        //console.log('Current error: '+err);
+        
     }
     return net;
 };
@@ -84,14 +86,38 @@ var n2f = function (bits, number) {
     return number / (Math.pow(2,bits) - 1);
 };
 
-
-nets.checkop = mknetFromFunctionSync({input:[0],output:[1]},[[n2f(3,0)],[n2f(3,1)],[n2f(3,2)],[n2f(3,7)]],function(input,outputs){
-    var retval = (f2n(3,input[0])<=2)-outputs[0];
-    console.log(retval);
+var byteFromBits = function(bits) {
+    var retval = 0;
+    for(var i = 0;i<8;i++) {
+        retval |= bits[i] << 7-i;
+    }
+    return retval;
+};
+var bitsFromByte = function(number) {
+    var retval = new Array();
+    for(var i = 0;i<8;i++) {
+        retval.push((number & (1 << (7-i)))>0);
+    }
+    return retval;
+};
+var inputs = new Array();
+for(var i = 0;i<256;i++) {
+    inputs.push(bitsFromByte(i));
+}
+inputs = inputs.map(function(val){
+    return val.map(function(val){
+        return val*1;
+    });
+});
+//console.log(inputs);
+nets.checkop = mknetFromFunctionSync({input:[0,0,0,0,0,0,0,0],output:[1.0]},inputs,function(input,outputs){
+    var retval = (byteFromBits(input)<=2)-outputs[0];
+    //console.log(retval);
+    //console.log(JSON.stringify(input)+' == '+(outputs[0]>.5));
     return [retval];
 });
 for(var i = 0;i<8;i++) {
-    console.log('Is '+i+' valid? '+(nets.checkop.run([i])>.5));
+    console.log('Is '+i+' valid? '+nets.checkop.run(bitsFromByte(i)));
 }
 
 /*
