@@ -139,6 +139,8 @@ for(var i = 0;i<8;i++) {
 
 
 nets.xor = mknetFromFunctionSync({input: [0, 0], output: [0, 0, 0, 0, 0, 0]}, xorinputs, function (input, outputs) {
+    
+    
     var bits = 3;
 //TODO: Emit some assembly code
     //Valid OPCODES:
@@ -150,8 +152,8 @@ nets.xor = mknetFromFunctionSync({input: [0, 0], output: [0, 0, 0, 0, 0, 0]}, xo
         error.push(0.0);
     }
     error[outputs.length-1] = .8;
-
     var stack = new Array();
+   
     var origpop = stack.pop;
     stack.pop = function() {
         if(stack.length>0) {
@@ -162,6 +164,7 @@ nets.xor = mknetFromFunctionSync({input: [0, 0], output: [0, 0, 0, 0, 0, 0]}, xo
     
         //console.log(outputs[0]+' == '+f2n(bits,outputs[0]));
     for (var i = 0; i < outputs.length; i++) {
+       
         try {
             switch (f2n(bits,outputs[i])) {
                 case 0:
