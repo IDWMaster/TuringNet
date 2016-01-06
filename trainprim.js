@@ -100,6 +100,22 @@ var bitsFromByte = function(number) {
     }
     return retval;
 };
+var bitsFromBuffer = function(buffer) {
+    var retval = new Array();
+    for(var i = 0;i<buffer.length;i++) {
+        retval.push.apply(retval,bitsFromByte(buffer[i]));
+    }
+    return retval;
+};
+var bufferFromBits = function(bits) {
+    var retval = new Buffer(bits.length/8);
+    for(var i = 0;i<retval.length;i++) {
+        retval[i] = byteFromBits(bits.slice(i*8,(i*8)+8));
+    }
+    return retval;
+};
+
+
 var inputs = new Array();
 for(var i = 0;i<256;i++) {
     inputs.push(bitsFromByte(i));
@@ -120,8 +136,7 @@ for(var i = 0;i<8;i++) {
     console.log('Is '+i+' valid? '+nets.checkop.run(bitsFromByte(i)));
 }
 
-/*
-TODO: Uncomment this when we have the network producing only valid opcodes
+
 
 nets.xor = mknetFromFunctionSync({input: [0, 0], output: [0, 0, 0, 0, 0, 0]}, xorinputs, function (input, outputs) {
     var bits = 3;
@@ -186,7 +201,7 @@ nets.xor = mknetFromFunctionSync({input: [0, 0], output: [0, 0, 0, 0, 0, 0]}, xo
     }
     return error;
 });
-*/
+
 
 
 
