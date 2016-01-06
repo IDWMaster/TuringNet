@@ -25,10 +25,10 @@ var mknetFromFunctionSync = function (trainingSample, inputs, func) {
                 return func(input, output);
             }, .2));
         }
-        
+
         //err/=inputs.length;
         //console.log('Current error: '+err);
-        
+
     }
     return net;
 };
@@ -83,124 +83,127 @@ var f2n = function (bits, number) {
 //Convert from int of n bits to float
 var n2f = function (bits, number) {
     //Convert from int to float
-    return number / (Math.pow(2,bits) - 1);
+    return number / (Math.pow(2, bits) - 1);
 };
 
-var byteFromBits = function(bits) {
+var byteFromBits = function (bits) {
     var retval = 0;
-    for(var i = 0;i<8;i++) {
-        retval |= bits[i] << 7-i;
+    for (var i = 0; i < 8; i++) {
+        retval |= bits[i] << 7 - i;
     }
     return retval;
 };
-var bitsFromByte = function(number) {
+var bitsFromByte = function (number) {
     var retval = new Array();
-    for(var i = 0;i<8;i++) {
-        retval.push((number & (1 << (7-i)))>0);
+    for (var i = 0; i < 8; i++) {
+        retval.push((number & (1 << (7 - i))) > 0);
     }
     return retval;
 };
-var bitsFromBuffer = function(buffer) {
+var bitsFromBuffer = function (buffer) {
     var retval = new Array();
-    for(var i = 0;i<buffer.length;i++) {
-        retval.push.apply(retval,bitsFromByte(buffer[i]));
+    for (var i = 0; i < buffer.length; i++) {
+        retval.push.apply(retval, bitsFromByte(buffer[i]));
     }
     return retval;
 };
-var bufferFromBits = function(bits) {
-    var retval = new Buffer(bits.length/8);
-    for(var i = 0;i<retval.length;i++) {
-        retval[i] = byteFromBits(bits.slice(i*8,(i*8)+8));
+var bufferFromBits = function (bits) {
+    var retval = new Buffer(bits.length / 8);
+    for (var i = 0; i < retval.length; i++) {
+        retval[i] = byteFromBits(bits.slice(i * 8, (i * 8) + 8));
     }
     return retval;
 };
 
 
 var inputs = new Array();
-for(var i = 0;i<256;i++) {
+for (var i = 0; i < 256; i++) {
     inputs.push(bitsFromByte(i));
 }
-inputs = inputs.map(function(val){
-    return val.map(function(val){
-        return val*1;
+inputs = inputs.map(function (val) {
+    return val.map(function (val) {
+        return val * 1;
     });
 });
 //console.log(inputs);
-nets.checkop = mknetFromFunctionSync({input:[0,0,0,0,0,0,0,0],output:[1.0]},inputs,function(input,outputs){
-    var retval = (byteFromBits(input)<=2)-outputs[0];
+nets.checkop = mknetFromFunctionSync({input: bitsFromBuffer(new Buffer([0])), output: [1.0]}, inputs, function (input, outputs) {
+    var retval = (byteFromBits(input) <= 2) - outputs[0];
     //console.log(retval);
     //console.log(JSON.stringify(input)+' == '+(outputs[0]>.5));
     return [retval];
 });
-for(var i = 0;i<8;i++) {
-    console.log('Is '+i+' valid? '+nets.checkop.run(bitsFromByte(i)));
+for (var i = 0; i < 8; i++) {
+    console.log('Is ' + i + ' valid? ' + nets.checkop.run(bitsFromByte(i)));
 }
 
 
 
-nets.xor = mknetFromFunctionSync({input: [0, 0], output: [0, 0, 0, 0, 0, 0]}, xorinputs, function (input, outputs) {
-    
-    
-    var bits = 3;
+nets.xor = mknetFromFunctionSync({input: bitsFromBuffer(new Buffer([0])), output: bitsFromBuffer(new Buffer(10))}, xorinputs, function (input, outputs) {
+
 //TODO: Emit some assembly code
     //Valid OPCODES:
     //0 -- Logic operation
     //1 -- Read first input value onto stack
     //2 -- Read second input value onto stack
+
     var error = new Array();
     for (var i = 0; i < outputs.length; i++) {
         error.push(0.0);
     }
-    error[outputs.length-1] = .8;
+    error[outputs.length - 1] = .8;
     var stack = new Array();
-   
+
     var origpop = stack.pop;
-    stack.pop = function() {
-        if(stack.length>0) {
+    stack.pop = function () {
+        if (stack.length > 0) {
             return origpop.apply(stack);
         }
         throw 'Failed to pop.';
     };
-    
-        //console.log(outputs[0]+' == '+f2n(bits,outputs[0]));
+
+    outputs = bufferFromBits(outputs);
+    //console.log(outputs[0]+' == '+f2n(bits,outputs[0]));
     for (var i = 0; i < outputs.length; i++) {
-       
-        try {
-            switch (f2n(bits,outputs[i])) {
-                case 0:
-                    //Execute logic operation, push results to stack
-                    i++;
-                    stack.push(nets.logic.run([outputs[i], stack.pop(), stack.pop()]));
-                    break;
-                case 1:
-                    //Push first input value to stack
-                    stack.push(input[0]);
-                    break;
-                case 2:
-                    //Push second output value to stack
-                    stack.push(input[1]);
-                    break;
-                default:
-                    throw 'up'; //Illegal OPCODE
-            }
-        } catch (er) {
-            //console.log('Error while running program.');
-            error[i] = .8;
-            for(;i<outputs.length;i++) {
+        var isOp = nets.checkop.run(bitsFromByte(outputs[i]));
+        if (isOp > 0.5) {
+            try {
+                switch (outputs[i]) {
+                    case 0:
+                        //Execute logic operation, push results to stack
+                        i++;
+                        stack.push(nets.logic.run([outputs[i], stack.pop(), stack.pop()]));
+                        break;
+                    case 1:
+                        //Push first input value to stack
+                        stack.push(input[0]);
+                        break;
+                    case 2:
+                        //Push second output value to stack
+                        stack.push(input[1]);
+                        break;
+                    default:
+                        throw 'up'; //Illegal OPCODE
+                }
+            } catch (er) {
+                //console.log('Error while running program.');
                 error[i] = .8;
+                for (; i < outputs.length; i++) {
+                    error[i] = .8;
+                }
+                if (error[1] < .8) {
+                    console.log(error);
+                }
+                return error;
+
             }
-            if(error[1]<.8) {
-                console.log(error);
-            }
-            return error;
-            
         }
+
     }
     try {
-    error[outputs.length-1] = (input[0] ^ input[1])-stack.pop();
-    }catch(er) {
+        error[outputs.length - 1] = (input[0] ^ input[1]) - stack.pop();
+    } catch (er) {
         console.log('Error while getting output');
-        error[outputs.length-1] = .8;
+        error[outputs.length - 1] = .8;
     }
     return error;
 });
