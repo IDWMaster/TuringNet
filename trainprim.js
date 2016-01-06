@@ -146,11 +146,10 @@ nets.xor = mknetFromFunctionSync({input: bitsFromBuffer(new Buffer([0])), output
     //1 -- Read first input value onto stack
     //2 -- Read second input value onto stack
 
-    var error = new Array();
-    for (var i = 0; i < outputs.length; i++) {
-        error.push(0.0);
+    var error = new Buffer(10);
+    for (var i = 0; i < error.length; i++) {
+        error[i] = 0;
     }
-    error[outputs.length - 1] = .8;
     var stack = new Array();
 
     var origpop = stack.pop;
@@ -185,7 +184,7 @@ nets.xor = mknetFromFunctionSync({input: bitsFromBuffer(new Buffer([0])), output
                         throw 'up'; //Illegal OPCODE
                 }
             } catch (er) {
-                //console.log('Error while running program.');
+                console.log('Stack ran out while running');
                 error[i] = .8;
                 for (; i < outputs.length; i++) {
                     error[i] = .8;
@@ -196,6 +195,8 @@ nets.xor = mknetFromFunctionSync({input: bitsFromBuffer(new Buffer([0])), output
                 return error;
 
             }
+        }else {
+            error[i] = (isOp*255) | 0;
         }
 
     }
