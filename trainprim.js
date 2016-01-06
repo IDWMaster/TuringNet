@@ -12,6 +12,14 @@ var mknet = function (trainingData) {
 
     return net;
 };
+var mkEmptyNet = function(trainingSample) {
+    var net = new brain.NeuralNetwork({hiddenLayers: [80]});
+    net.train(trainingSample, {errorThresh: .05, iterations: 1, learningRate: .2, log: false});
+    return net;
+};
+var runTrainingIterationFromSynchronousFunction = function(net,input,func) {
+    return net.trainFunction(input,func,.2);
+};
 var mknetFromFunctionSync = function (trainingSample, inputs, func) {
     var net = new brain.NeuralNetwork({hiddenLayers: [80]});
     net.train(trainingSample, {errorThresh: .05, iterations: 1, learningRate: .2, log: false});
@@ -137,6 +145,10 @@ for (var i = 0; i < 8; i++) {
 }
 
 
+//TODO: Define underflowinputs
+nets.checkStackUnderflow = mkEmptyNet({input: bitsFromBuffer(new Buffer(10)), output: [0]});
+
+
 
 nets.xor = mknetFromFunctionSync({input: bitsFromBuffer(new Buffer([0])), output: bitsFromBuffer(new Buffer(10))}, xorinputs, function (input, outputs) {
 
@@ -196,7 +208,7 @@ nets.xor = mknetFromFunctionSync({input: bitsFromBuffer(new Buffer([0])), output
 
             }
         }else {
-            error[i] = (isOp*255) | 0;
+            error[i] = (255-(isOp*255)) | 0;
         }
 
     }
