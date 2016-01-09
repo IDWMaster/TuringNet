@@ -171,6 +171,7 @@ nets.xor = mknetFromFunctionSync({input: bitsFromBuffer(new Buffer([0])), output
         }
         throw 'Failed to pop.';
     };
+    
 
     outputs = bufferFromBits(outputs);
     //console.log(outputs[0]+' == '+f2n(bits,outputs[0]));
